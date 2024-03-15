@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  tf_ds:
+    container_name: tf_ds_container
+    build:
+      context: .
+      args:
+        - NODE_ENV=local
+      dockerfile: Dockerfile
+    network_mode: "host"
+    runtime: nvidia
+    shm_size: 6g
+    volumes:
+      - "./src:/opt/nvidia/deepstream/deepstream-6.3/sources/src"
+      - "/tmp/.X11-unix:/tmp/.X11-unix:rw"
+      - "//var/run/docker.sock://var/run/docker.sock"
+      - "/etc/localtime:/etc/localtime:ro"
+    environment:
+      - DISPLAY=$DISPLAY
+      - QT_X11_NO_MITSHM=1
+      - ENABLE_ALERTS=TRUE
+      - PRINT_OUT=FALSE
+      - ROOT_DIR=/workspace/SP2023/
+      # - GST_DEBUG=1
+      # - GST_DEBUG_LEVEL=3
+    restart: on-failure
+    # command: ["deepstream_python_apps/apps/deepstream-demux-multi-in-multi-out/deepstream_demux_multi_in_multi_out.py","-i", "file:///opt/nvidia/deepstream/deepstream-5.1/workspace/1.mp4"]
+    command: ["driver.py"]
+    entrypoint: ["python3", "-u"]
