@@ -264,9 +264,12 @@ RUN rm -rf /root/.cache/pip
 ## Download & Building TensorFlow from source in same RUN
 ARG LATEST_BAZELISK=1.5.0
 ARG LATEST_BAZEL=3.7.2
-ARG CTO_TENSORFLOW_VERSION=2.5.0
+ARG CTO_TENSORFLOW_VERSION=2.7.0
+ARG PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python
 ARG CTO_TF_OPT=""
 ARG CTO_DNN_ARCH=""
+ARG TF_NEED_CLANG=0
+RUN touch /tmp/.GPU_build
 COPY tools/tf_build.sh /tmp/
 RUN curl -s -Lo /usr/local/bin/bazel https://github.com/bazelbuild/bazelisk/releases/download/v${LATEST_BAZELISK}/bazelisk-linux-amd64
 RUN chmod +x /usr/local/bin/bazel
@@ -277,9 +280,9 @@ WORKDIR /usr/local/src/tensorflow
 RUN fgrep _TF_MAX_BAZEL configure.py | grep '=' | perl -ne '$lb="'${LATEST_BAZEL}'";$brv=$1 if (m%\=\s+.([\d\.]+).$+%); sub numit{@g=split(m%\.%,$_[0]);return(1000000*$g[0]+1000*$g[1]+$g[2]);}; if (&numit($brv) > &numit($lb)) { print "$lb" } else {print "$brv"};' > .bazelversion
 RUN bazel clean
 RUN chmod +x /tmp/tf_build.sh
-RUN time /tmp/tf_build.sh Av2
-# RUN time ./bazel-bin/tensorflow/tools/pip_package/build_pip_package /tmp/tensorflow_pkg
-# RUN time pip3 install /tmp/tensorflow_pkg/tensorflow-*.whl
+RUN time /tmp/tf_build.sh Av1
+RUN time ./bazel-bin/tensorflow/tools/pip_package/build_pip_package /tmp/tensorflow_pkg
+RUN time pip3 install /tmp/tensorflow_pkg/tensorflow-*.whl
 # RUN rm -rf /usr/local/src/tensorflow /tmp/tensorflow_pkg /tmp/bazel_check.pl /tmp/tf_build.sh /tmp/hsperfdata_root /root/.cache/bazel /root/.cache/pip /root/.cache/bazelisk
 # RUN python3 -c "import tensorflow"
 
